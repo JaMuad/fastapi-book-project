@@ -22,26 +22,19 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@52.91.212.20 << 'EOF'
-            # Ensure required packages are installed
-            sudo apt update && sudo apt install -y git docker.io docker-compose
+          ssh ubuntu@52.91.212.20 << 'EOF'
+            export PATH=/bin:/usr/bin:$PATH  # Ensure all commands work
             
-            # Clone repo if missing
+            # Ensure repo exists
             if [ ! -d "fastapi-book-project" ]; then
               git clone https://github.com/JaMuad/fastapi-book-project.git
             fi
             
             cd fastapi-book-project
             git pull origin main
-
-            # Ensure Docker service is running
-            sudo systemctl enable docker
-            sudo systemctl start docker
             
-            # Restart application
-            sudo docker-compose down
-            sudo docker-compose up -d --build
-            
-            # Restart Nginx
+            # Restart services
+            docker-compose down
+            docker-compose up -d --build
             sudo systemctl restart nginx
           EOF
