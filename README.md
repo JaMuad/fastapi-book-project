@@ -1,5 +1,11 @@
 # FastAPI Book Management API
 
+@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+JUMP BELOW FOR CLEAR STEP BY STEP GUIDE (CHANGES DONE AFTER FORKING)
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 ## Overview
 
 This project is a RESTful API built with FastAPI for managing a book collection. It provides comprehensive CRUD (Create, Read, Update, Delete) operations for books with proper error handling, input validation, and documentation.
@@ -48,31 +54,31 @@ fastapi-book-project/
 
 1. Clone the repository:
 
-```bash
+
 git clone https://github.com/hng12-devbotops/fastapi-book-project.git
 cd fastapi-book-project
-```
+
 
 2. Create a virtual environment:
 
-```bash
+
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+
 
 3. Install dependencies:
 
-```bash
+
 pip install -r requirements.txt
-```
+
 
 ## Running the Application
 
 1. Start the server:
 
-```bash
+
 uvicorn main:app
-```
+
 
 2. Access the API documentation:
 
@@ -95,7 +101,7 @@ uvicorn main:app
 
 ## Book Schema
 
-```json
+
 {
   "id": 1,
   "title": "Book Title",
@@ -103,7 +109,7 @@ uvicorn main:app
   "publication_year": 2024,
   "genre": "Fantasy"
 }
-```
+
 
 Available genres:
 
@@ -116,9 +122,9 @@ Available genres:
 
 ## Running Tests
 
-```bash
+
 pytest
-```
+
 
 ## Error Handling
 
@@ -141,6 +147,133 @@ The API includes proper error handling for:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+## CHANGES DONE AFTER FORKING
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-For support, please open an issue in the GitHub repository..
+1. [Project Updates](#project-updates)
+2. [CI/CD Setup](#cicd-setup)
+3. [SSH Key Configuration](#ssh-key-configuration)
+4. [Virtual Machine Setup](#virtual-machine-setup)
+5. [Domain Configuration](#domain-configuration)
+6. [Testing Endpoints](#testing-endpoints)
+7. [Troubleshooting](#troubleshooting)
+
+---
+
+## Project Updates <a name="project-updates"></a>
+1. **Updated Book Endpoint**  
+   - Modified `routes/books.py` to handle 404 responses for non-existent books
+2. **Enhanced Tests**  
+   - Added test cases in `tests/test_books.py` for the new functionality
+3. **Containerization**  
+   - Added `Dockerfile` and `docker-compose.yml` for Docker support
+4. **CI/CD Pipelines**  
+   - Created GitHub Actions workflows:
+     - `test.yml` (CI pipeline for testing)
+     - `deploy.yml` (CD pipeline for deployment)
+
+---
+
+## CI/CD Setup <a name="cicd-setup"></a>
+### Create CI/CD Files
+
+# Navigate to project directory
+cd /path/to/fastapi-book-project
+
+# Create workflows directory
+mkdir -p .github/workflows
+cd .github/workflows
+
+# Create workflow files
+touch test.yml deploy.yml
+
+## Commit Changes
+
+git add .
+git commit -m "Added CI/CD and Docker support"
+git push origin main
+SSH Key Configuration <a name="ssh-key-configuration"></a>
+
+Generate SSH Keys
+
+ssh-keygen -t rsa -b 4096 -C "your-vm-ip-address"
+# Accept default locations and empty passphrase
+Configure VM Access
+
+
+# Copy public key to VM
+ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@your-vm-ip-address
+
+# Test connection
+ssh ubuntu@your-vm-ip-address
+Add Private Key to GitHub Secrets
+
+Copy private key:
+
+cat ~/.ssh/id_rsa
+In GitHub:
+Settings → Secrets and variables → Actions → New repository secret
+Name: SSH_PRIVATE_KEY
+Paste private key
+Virtual Machine Setup <a name="virtual-machine-setup"></a>
+
+Nginx Configuration
+
+
+sudo apt update
+sudo apt install nginx -y
+Create /etc/nginx/sites-available/fastapi:
+
+nginx
+Copy
+server {
+    listen 80;
+    server_name Yourdomain.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+Enable configuration:
+
+
+sudo ln -s /etc/nginx/sites-available/fastapi /etc/nginx/sites-enabled
+sudo systemctl restart nginx
+Domain Configuration <a name="domain-configuration"></a>
+
+Create Route53 A record for YourDomain.buzz
+Point to EC2 instance public IP
+Testing Endpoints <a name="testing-endpoints"></a>
+
+
+# Health check
+curl https://YourDomain.com/healthcheck
+
+# Get all books
+curl https://YourDomain.com/api/v1/books/
+
+# Get specific book
+curl https://YourDomain.com/api/v1/books/1
+
+# Test 404 response
+curl https://YourDomain.com/api/v1/books/99999
+Troubleshooting <a name="troubleshooting"></a>
+
+Sudo Permission Fix
+
+Add to CD pipeline (deploy.yml):
+
+
+- name: Fix Sudo Permission
+  run: export PATH=/bin:/usr/bin:$PATH
+
+
+Ensure all components work together and verify through Postman/curl tests.
+
+
+Deployment Complete! 🚀
