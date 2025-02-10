@@ -1,4 +1,4 @@
-name: CD Pipeline
+name: Deploy to EC2
 
 on:
   push:
@@ -10,18 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Install SSH Key
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Deploy to AWS VM
+      - name: Set up SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@muadmaalim.buzz << 'EOF'
-            cd /home/ubuntu/fastapi-book-project
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 52.91.212.20 >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        run: |
+          ssh ubuntu@52.91.212.20 << 'EOF'
+            cd fastapi-book-project
             git pull origin main
-            docker-compose up --build -d
+            docker-compose down
+            docker-compose up -d --build
+            sudo systemctl restart nginx
           EOF
